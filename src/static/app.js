@@ -27,6 +27,43 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
         `;
 
+        // Participants section (created via DOM to avoid injection)
+        const participantsSection = document.createElement("div");
+        participantsSection.className = "participants-section";
+
+        const participantsTitle = document.createElement("h5");
+        participantsTitle.textContent = "Participants";
+        participantsSection.appendChild(participantsTitle);
+
+        if (details.participants && details.participants.length) {
+          const participantsList = document.createElement("div");
+          details.participants.forEach((participant, idx) => {
+            const div = document.createElement('div');
+            div.className = 'participant-row';
+            const span = document.createElement('span');
+            span.textContent = participant;
+            // Create delete icon
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'delete-icon';
+            deleteBtn.innerHTML = '&#128465;'; // Trash can emoji
+            deleteBtn.title = 'Unregister';
+            deleteBtn.style.cursor = 'pointer';
+            deleteBtn.onclick = function() {
+              unregisterParticipant(idx);
+            };
+            div.appendChild(span);
+            div.appendChild(deleteBtn);
+            participantsList.appendChild(div);
+          });
+          participantsSection.appendChild(participantsList);
+        } else {
+          const noP = document.createElement("p");
+          noP.className = "no-participants";
+          noP.textContent = "No participants yet.";
+          participantsSection.appendChild(noP);
+        }
+
+        activityCard.appendChild(participantsSection);
         activitiesList.appendChild(activityCard);
 
         // Add option to select dropdown
@@ -62,6 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // Refresh activities list after successful registration
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
@@ -84,3 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   fetchActivities();
 });
+
+// Unregister participant by index
+function unregisterParticipant(index) {
+  participants.splice(index, 1);
+  updateParticipantsList();
+  // Optionally, send update to backend if needed
+}

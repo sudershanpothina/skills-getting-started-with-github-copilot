@@ -36,14 +36,26 @@ document.addEventListener("DOMContentLoaded", () => {
         participantsSection.appendChild(participantsTitle);
 
         if (details.participants && details.participants.length) {
-          const ul = document.createElement("ul");
-          ul.className = "participants-list";
-          details.participants.forEach((p) => {
-            const li = document.createElement("li");
-            li.textContent = p;
-            ul.appendChild(li);
+          const participantsList = document.createElement("div");
+          details.participants.forEach((participant, idx) => {
+            const div = document.createElement('div');
+            div.className = 'participant-row';
+            const span = document.createElement('span');
+            span.textContent = participant;
+            // Create delete icon
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'delete-icon';
+            deleteBtn.innerHTML = '&#128465;'; // Trash can emoji
+            deleteBtn.title = 'Unregister';
+            deleteBtn.style.cursor = 'pointer';
+            deleteBtn.onclick = function() {
+              unregisterParticipant(idx);
+            };
+            div.appendChild(span);
+            div.appendChild(deleteBtn);
+            participantsList.appendChild(div);
           });
-          participantsSection.appendChild(ul);
+          participantsSection.appendChild(participantsList);
         } else {
           const noP = document.createElement("p");
           noP.className = "no-participants";
@@ -87,6 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // Refresh activities list after successful registration
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
@@ -109,3 +122,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   fetchActivities();
 });
+
+// Unregister participant by index
+function unregisterParticipant(index) {
+  participants.splice(index, 1);
+  updateParticipantsList();
+  // Optionally, send update to backend if needed
+}
